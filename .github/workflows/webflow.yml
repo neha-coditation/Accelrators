@@ -49,7 +49,7 @@ jobs:
         if: steps.changed.outputs.found == 'true'
         env:
           WEBFLOW_TOKEN: ${{ secrets.WEBFLOW_TOKEN }}
-          COLLECTION_ID: 6a2a8f8bdd76d9f9d31e08f6
+          COLLECTION_ID: ${{ secrets.WEBFLOW_COLLECTION_ID }}
           GITHUB_PAGES: https://neha-coditation.github.io/Accelerators
         run: |
           python scripts/sync_webflow.py
