@@ -11,7 +11,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 WEBFLOW_TOKEN = os.environ.get("WEBFLOW_TOKEN")
-COLLECTION_ID = os.environ.get("COLLECTION_ID")
+COLLECTION_ID = os.environ.get("WEBFLOW_COLLECTION_ID")
 GITHUB_PAGES = os.environ.get("GITHUB_PAGES")
 HTML_FILE = os.environ.get("HTML_FILE")
 if not HTML_FILE:
