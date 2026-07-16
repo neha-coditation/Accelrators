@@ -48,7 +48,7 @@ jobs:
       - name: Sync to Webflow
         env:
           WEBFLOW_TOKEN: ${{ secrets.WEBFLOW_TOKEN }}
-          COLLECTION_ID: 69e88bdf798339812888e292
+          COLLECTION_ID: 6a2a8f8bdd76d9f9d31e08f6
           GITHUB_PAGES: https://neha-coditation.github.io/Accelerators
         run: |
           python scripts/sync_webflow.py
