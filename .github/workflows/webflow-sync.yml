@@ -1,0 +1,62 @@
+name: Sync Case Studies to Webflow
+
+# Place this file at: .github/workflows/webflow-sync.yml
+# Runs on every push to main that touches an .html file. Automatically finds
+# whichever .html file(s) were newly ADDED in the push and syncs each one to
+# Webflow via scripts/sync_webflow.py (create if new, update if the slug
+# already exists).
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**.html"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history needed to diff commits
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Find newly added HTML files
+        id: find_new
+        run: |
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE=$(git hash-object -t tree /dev/null)
+          fi
+          NEW_FILES=$(git diff --name-status --diff-filter=A "$BEFORE" "$AFTER" | awk -F'\t' '$2 ~ /\.html$/ {print $2}')
+          echo "Newly added .html files:"
+          echo "$NEW_FILES"
+          {
+            echo "files<<EOF"
+            echo "$NEW_FILES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Sync each new HTML file to Webflow CMS
+        env:
+          WEBFLOW_TOKEN: ${{ secrets.WEBFLOW_TOKEN }}
+          COLLECTION_ID: ${{ secrets.COLLECTION_ID }}
+          GITHUB_PAGES: https://neha-coditation.github.io/Case-Studies
+        run: |
+          FILES="${{ steps.find_new.outputs.files }}"
+          if [ -z "$FILES" ]; then
+            echo "No newly added .html files in this push. Nothing to sync."
+            exit 0
+          fi
+          echo "$FILES" | while IFS= read -r file; do
+            if [ -n "$file" ]; then
+              echo "::group::Syncing $file"
+              HTML_FILE="$file" python scripts/sync_webflow.py
+              echo "::endgroup::"
+            fi
+          done
