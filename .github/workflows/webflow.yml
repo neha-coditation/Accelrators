@@ -49,6 +49,6 @@ jobs:
         env:
           WEBFLOW_TOKEN: ${{ secrets.WEBFLOW_TOKEN }}
           COLLECTION_ID: 69e88bdf798339812888e292
-          GITHUB_PAGES: https://neha-coditation.github.io/Case-Studies
+          GITHUB_PAGES: https://neha-coditation.github.io/Accelerators
         run: |
           python scripts/sync_webflow.py
