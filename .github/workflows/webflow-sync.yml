@@ -1,4 +1,4 @@
-name: Sync Case Studies to Webflow
+name: Sync Accelerators to Webflow
 
 # Place this file at: .github/workflows/webflow-sync.yml
 # Runs on every push to main that touches an .html file. Automatically finds
@@ -46,7 +46,7 @@ jobs:
         env:
           WEBFLOW_TOKEN: ${{ secrets.WEBFLOW_TOKEN }}
           COLLECTION_ID: ${{ secrets.COLLECTION_ID }}
-          GITHUB_PAGES: https://neha-coditation.github.io/Case-Studies
+          GITHUB_PAGES: https://neha-coditation.github.io/Accelerators
         run: |
           FILES="${{ steps.find_new.outputs.files }}"
           if [ -z "$FILES" ]; then
