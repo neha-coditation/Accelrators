@@ -1,21 +1,18 @@
 name: Sync GitHub Pages to Webflow
-
 on:
   push:
     branches:
       - main
     paths:
       - "*.html"
-
 jobs:
   sync:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Fetches all history so git diff HEAD~1 works
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -30,22 +27,26 @@ jobs:
         id: changed
         shell: bash
         run: |
-          # Fallback check: If HEAD~1 doesn't exist (first commit), diff against an empty tree
-          if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
-            FILE=$(git diff --name-only HEAD~1 HEAD | grep '\.html$' | head -1)
+          # Use the push event's before/after range so multi-commit pushes
+          # are fully covered, not just the last commit.
+          if git rev-parse --verify ${{ github.event.before }} >/dev/null 2>&1; then
+            FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep '\.html$' | head -1)
           else
             FILE=$(git diff-tree --no-commit-id --name-only -r HEAD | grep '\.html$' | head -1)
           fi
 
           if [ -z "$FILE" ]; then
             echo "No HTML file changed."
+            echo "found=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           echo "Changed file: $FILE"
-          echo "HTML_FILE=$FILE" >> $GITHUB_ENV
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "HTML_FILE=$FILE" >> "$GITHUB_ENV"
 
       - name: Sync to Webflow
+        if: steps.changed.outputs.found == 'true'
         env:
           WEBFLOW_TOKEN: ${{ secrets.WEBFLOW_TOKEN }}
           COLLECTION_ID: 6a2a8f8bdd76d9f9d31e08f6
